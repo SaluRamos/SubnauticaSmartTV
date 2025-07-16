@@ -33,19 +33,19 @@ namespace SmartTV
         public GameObject tvPrefab;
         public GameObject tvPrefabParent;
 
-        public static ConfigEntry<string> videosFolderPathEntry;
         public string[] videos;
         private int currentVideoIndex = 0;
+        private string videosFolderPath;
 
         private void Awake()
         {
             instance = this;
-            videosFolderPathEntry = Config.Bind("Settings", "VideoPath", "e://SmartTVVideos", "The URL of the video to play on the Smart TV.");
-            videosFolderPathEntry.SettingChanged += UpdateVideosFolder;
+            string modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string bundlePath = modFolder + "/60insmarttv";
+            videosFolderPath = modFolder + "/Videos/"; 
             UpdateVideosFolder(null, null);
 
-            string modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "/60insmarttv";
-            AssetBundle bundle = AssetBundle.LoadFromFile(modFolder);
+            AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);
             if (bundle == null)
             {
                 Logger.LogError("AssetBundle not found at: " + modFolder);
@@ -66,24 +66,24 @@ namespace SmartTV
                 Debug.LogError("Model GameObject not found in TV prefab.");
                 return;
             }
+            model.transform.localPosition = new Vector3(0, -1, 0);
 
-            float height = GetTotalHeight(model)/2 + 0.05f;
+            float height = GetTotalHeight(model)/2;
+            
+            GameObject tvObj = tvPrefab.transform.Find("GameObject/tv").gameObject;
+            AddMarmoSetShaderToGameObject(tvObj, new string[]{ "MARMO_SPECMAP" });
+
+
             foreach (Transform child in model.transform)
             {
                 child.transform.localPosition = new Vector3(child.transform.localPosition.x, child.transform.localPosition.y + height, child.transform.localPosition.z);
-                MeshRenderer renderer = child.GetComponent<MeshRenderer>();
-                Material oldMat = renderer.sharedMaterial;
-                Material newMat = new Material(MaterialUtils.Shaders.MarmosetUBER);
-                newMat.color = oldMat.color;
-                newMat.EnableKeyword("MARMO_SPECMAP");
-                newMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive | MaterialGlobalIlluminationFlags.EmissiveIsBlack;  
-                renderer.sharedMaterial = newMat;
             }
 
             GameObject planeObj = tvPrefab.transform.Find("GameObject/Plane").gameObject;
             AudioSource audioSource = planeObj.GetComponent<AudioSource>();
             audioSource.spatialBlend = 1f; //set spatial blend to 1 to make it 3D audio
             audioSource.spatialize = true; //enable spatialization
+            Material planeObjMat = AddMarmoSetShaderToGameObject(planeObj, new string[] { });
 
             GameObject canvasObj = tvPrefab.transform.Find("GameObject/Plane/Canvas").gameObject;
             canvasObj.AddComponent<AttachCameraToCanvas>();
@@ -94,13 +94,16 @@ namespace SmartTV
 
             GameObject nextVideoObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/NextVideo").gameObject;
             nextVideoObj.AddComponent<ChangeVideoBtn>();
-            nextVideoObj.AddComponent<BtnFade>();
+            nextVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
 
             GameObject previousVideoObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/PreviousVideo").gameObject;
             previousVideoObj.AddComponent<ChangeVideoBtn>();
-            previousVideoObj.AddComponent<BtnFade>();
+            previousVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
 
-            ConstructableFlags constructableFlags = ConstructableFlags.Inside | ConstructableFlags.Rotatable | ConstructableFlags.Ground | ConstructableFlags.AllowedOnConstructable | ConstructableFlags.Submarine;
+            GameObject volumeSliderObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Slider").gameObject;
+            volumeSliderObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            ConstructableFlags constructableFlags = ConstructableFlags.Inside | ConstructableFlags.Rotatable | ConstructableFlags.Ground | ConstructableFlags.AllowedOnConstructable | ConstructableFlags.Submarine | ConstructableFlags.Outside;
             PrefabUtils.AddConstructable(tvPrefab, smartTVInfo.TechType, constructableFlags, model);
 
             CustomPrefab prefab = new CustomPrefab(smartTVInfo);
@@ -125,9 +128,24 @@ namespace SmartTV
             prefab.Register();
         }
 
-        private Camera mainCamera;
+        public static Camera mainCamera;
         private float minDistance = 3f;
         private float maxDistance = 10f;
+
+        private Material AddMarmoSetShaderToGameObject(GameObject obj, string[] shaderKeys)
+        {
+            MeshRenderer renderer = obj.GetComponent<MeshRenderer>();
+            Material oldMat = renderer.sharedMaterial;
+            Material newMat = new Material(MaterialUtils.Shaders.MarmosetUBER);
+            newMat.color = oldMat.color;
+            foreach (string key in shaderKeys)
+            { 
+                newMat.EnableKeyword(key);
+            }
+            newMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive | MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+            renderer.sharedMaterial = newMat;
+            return newMat;
+        }
 
         void LateUpdate()
         {
@@ -150,15 +168,16 @@ namespace SmartTV
                     {
                         if (player.gameObject.activeInHierarchy && player.isPlaying)
                         {
+                            float maxVolume = player.transform.Find("Canvas/Slider").GetComponent<Slider>().value;
                             float distance = Vector3.Distance(mainCamera.transform.position, player.transform.position);
                             if (distance < minDistance)
                             {
-                                player.gameObject.GetComponent<AudioSource>().volume = 1f;
+                                player.gameObject.GetComponent<AudioSource>().volume = Math.Min(maxVolume, 1f);
                             }
                             else
                             {
                                 float newVolume = Mathf.Clamp01(1f - (distance - minDistance) / (maxDistance - minDistance)); //função linear que é y=1 em x=3 e y=0 em x=10
-                                player.gameObject.GetComponent<AudioSource>().volume = newVolume;
+                                player.gameObject.GetComponent<AudioSource>().volume = Math.Min(maxVolume, newVolume);
                             }
                         }
                     }
@@ -168,7 +187,7 @@ namespace SmartTV
 
         public void UpdateVideosFolder(object sender, EventArgs e)
         {
-            string folderPath = videosFolderPathEntry.Value;
+            string folderPath = videosFolderPath;
             if (!Directory.Exists(folderPath))
             {
                 Logger.LogError($"Folder not found: {folderPath}");
