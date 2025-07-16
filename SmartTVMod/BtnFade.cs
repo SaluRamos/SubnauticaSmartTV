@@ -14,6 +14,7 @@ namespace SmartTV
 
         private CanvasGroup targetGroup;
         private Coroutine fadeRoutine;
+        public bool fadeOutOnStart = false;
 
         void Start()
         {
@@ -25,10 +26,21 @@ namespace SmartTV
                 targetGroup.blocksRaycasts = true;
                 targetGroup.ignoreParentGroups = false;
             }
+            if (fadeOutOnStart)
+            {
+                OnPointerExit(null);
+            }
         }
+
+        private float minDistanceToInteract = 3f;
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            float distance = Vector3.Distance(SmartTVMain.mainCamera.transform.position, transform.position);
+            if (distance > minDistanceToInteract)
+            {
+                return;
+            }
             UpdateVisibility(true);
         }
 
