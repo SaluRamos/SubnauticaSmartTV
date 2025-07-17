@@ -1,3 +1,11 @@
+## Contributors
+
+<a href="https://github.com/inuyasha1031">
+  <img src="https://github.com/inuyasha1031.png" width="50" />
+  <br />
+  @inuyasha1031
+</a>
+
 ## Requirements
 
 - https://github.com/BepInEx/BepInEx
