@@ -51,11 +51,22 @@ namespace SmartTV
                 Logger.LogError("AssetBundle not found at: " + modFolder);
                 return;
             }
+
             tvPrefab = bundle.LoadAsset<GameObject>("TVRoot");
             if (tvPrefab == null)
             { 
                 Logger.LogError("TV prefab not found in AssetBundle.");
                 return;
+            }
+
+            Sprite icon = bundle.LoadAsset<Sprite>("TVSprite");
+            if (icon != null)
+            {
+                smartTVInfo.WithIcon(icon);
+            }
+            else
+            {
+                Debug.LogError("smarttv icon is null");
             }
 
             PrefabUtils.AddBasicComponents(tvPrefab, smartTVInfo.ClassID, smartTVInfo.TechType, LargeWorldEntity.CellLevel.Global);

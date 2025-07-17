@@ -18,6 +18,7 @@ public class ForceIncludeBuilder
         assetPaths.Add("Assets/Prefabs/TVRoot.prefab");
         assetPaths.Add("Assets/Resources/pause.png");
         assetPaths.Add("Assets/Resources/play.png");
+        assetPaths.Add("Assets/Resources/TVSprite.png");
 
         var build = new AssetBundleBuild {
             assetBundleName = "60insmarttv",
