@@ -94,7 +94,7 @@ namespace SmartTV
             AudioSource audioSource = planeObj.GetComponent<AudioSource>();
             audioSource.spatialBlend = 1f; //set spatial blend to 1 to make it 3D audio
             audioSource.spatialize = true; //enable spatialization
-            Material planeObjMat = AddMarmoSetShaderToGameObject(planeObj, new string[] { });
+            //Material planeObjMat = AddMarmoSetShaderToGameObject(planeObj, new string[] { });
 
             GameObject canvasObj = tvPrefab.transform.Find("GameObject/Plane/Canvas").gameObject;
             canvasObj.AddComponent<AttachCameraToCanvas>();
