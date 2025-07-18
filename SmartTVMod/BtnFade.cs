@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +35,24 @@ namespace SmartTV
 
         private float minDistanceToInteract = 3f;
 
+        void LateUpdate()
+        {
+            if (looking)
+            {
+                long actualTimestamp = Stopwatch.GetTimestamp();
+                long elapsedTicks = actualTimestamp - startLookingToBtnTimestamp;
+                double elapsedSeconds = (double) elapsedTicks / Stopwatch.Frequency;
+                if (elapsedSeconds >= timeToFadeOutAutomatically)
+                {
+                    UpdateVisibility(false);
+                }
+            }
+        }
+
+        private bool looking = false;
+        private long startLookingToBtnTimestamp;
+        private double timeToFadeOutAutomatically = 5f; //5 seconds
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             float distance = Vector3.Distance(SmartTVMain.mainCamera.transform.position, transform.position);
@@ -41,12 +60,12 @@ namespace SmartTV
             {
                 return;
             }
+            startLookingToBtnTimestamp = Stopwatch.GetTimestamp();
             UpdateVisibility(true);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            float distance = Vector3.Distance(Camera.main.transform.position, transform.position);
             UpdateVisibility(false);
         }
 
@@ -60,6 +79,7 @@ namespace SmartTV
             {
                 StopCoroutine(fadeRoutine);
             }
+            looking = fadeIn;
             fadeRoutine = StartCoroutine(FadeCanvasGroup(fadeIn));
         }
 
