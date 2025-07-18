@@ -13,6 +13,7 @@ namespace SmartTV
         private VideoPlayer videoPlayer;
         private RawImage pauseImage;
         private RawImage playImage;
+        private bool isPlaying = false;
 
         void Start()
         {
@@ -26,6 +27,11 @@ namespace SmartTV
                 es.AddComponent<EventSystem>();
                 es.AddComponent<StandaloneInputModule>();
             }
+        }
+
+        public bool IsPlaying()
+        {
+            return isPlaying;
         }
 
         public void Toggle()
@@ -55,6 +61,7 @@ namespace SmartTV
 
         public void Pause()
         {
+            isPlaying = false;
             videoPlayer.Pause();
             playImage.enabled = true;
             pauseImage.enabled = false;
@@ -62,6 +69,7 @@ namespace SmartTV
 
         public void Play()
         {
+            isPlaying = true;
             videoPlayer.Play();
             playImage.enabled = false;
             pauseImage.enabled = true;

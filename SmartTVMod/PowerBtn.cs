@@ -1,11 +1,4 @@
-﻿using Mono.Unix.Native;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace SmartTV
@@ -16,6 +9,8 @@ namespace SmartTV
 
         private bool isOn = true;
         private Material screenMaterial;
+        private RawImage powerImage;
+        private VideoToggleControl videoToggleControl;
 
         void Start()
         {
@@ -23,6 +18,8 @@ namespace SmartTV
             buttonComponent.onClick.RemoveAllListeners();
             buttonComponent.onClick.AddListener(this.Toggle);
             screenMaterial = transform.parent.parent.GetComponent<Renderer>().material;
+            powerImage = transform.Find("RawImage").GetComponent<RawImage>();
+            videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
         }
 
         private void Toggle()
@@ -35,6 +32,11 @@ namespace SmartTV
                 {
                     child.gameObject.SetActive(isOn);
                 }
+            }
+            powerImage.color = isOn ? Color.white : Color.red;
+            if (videoToggleControl.IsPlaying() && isOn)
+            {
+                videoToggleControl.Pause();
             }
         }
     
