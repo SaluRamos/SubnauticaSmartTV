@@ -114,6 +114,10 @@ namespace SmartTV
             GameObject volumeSliderObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Slider").gameObject;
             volumeSliderObj.AddComponent<BtnFade>().fadeOutOnStart = true;
 
+            GameObject powerBtnObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Power").gameObject;
+            powerBtnObj.AddComponent<PowerBtn>();
+            powerBtnObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
             ConstructableFlags constructableFlags = ConstructableFlags.Inside | ConstructableFlags.Rotatable | ConstructableFlags.Ground | ConstructableFlags.AllowedOnConstructable | ConstructableFlags.Submarine | ConstructableFlags.Outside;
             PrefabUtils.AddConstructable(tvPrefab, smartTVInfo.TechType, constructableFlags, model);
 
