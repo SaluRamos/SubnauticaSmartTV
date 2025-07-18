@@ -135,6 +135,7 @@ namespace SmartTV
                 ]
             }";
             prefab.SetRecipeFromJson(recipeJson);
+            prefab.SetUnlock(TechType.Titanium);
             prefab.SetPdaGroupCategory(TechGroup.InteriorModules, TechCategory.InteriorModule);
             prefab.Register();
         }
