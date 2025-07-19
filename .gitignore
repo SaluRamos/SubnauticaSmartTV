@@ -17,6 +17,8 @@ Unity/.vscode
 Unity/.collabignore
 Unity/Assets/generatedAssetBundles
 Unity/Assets/Resources/video.mp4
+Unity/Assets/build-ultralight/UltraLight/UltraLight
+Unity/Assets/build-ultralight/UltraLight/x64
 
 SmartTVMod/bin/
 SmartTVMod/obj/
