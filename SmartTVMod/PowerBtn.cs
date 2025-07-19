@@ -34,7 +34,7 @@ namespace SmartTV
                 }
             }
             powerImage.color = isOn ? Color.white : Color.red;
-            if (videoToggleControl.IsPlaying() && isOn)
+            if (videoToggleControl.IsPlaying() && !isOn)
             {
                 videoToggleControl.Pause();
             }
