@@ -200,11 +200,15 @@ public class Ultralight : MonoBehaviour
                 vd.changed = false;
                 if (tex == null || tex.width != vd.w || tex.height != vd.h)
                     tex = new Texture2D(vd.w, vd.h);
+                for (int i = 0; i < vd.data.Length; i++)
+                {
+                    Color32 c = vd.data[i];
+                    vd.data[i] = new Color32(c.b, c.g, c.r, c.a);
+                }
                 tex.SetPixels32(vd.data);
                 tex.Apply();
-                SpriteRenderer sr = GetComponent<SpriteRenderer>();
-                sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
-                    new Vector2(0, 0), 70.0f);
+                Renderer renderer = GetComponent<Renderer>();
+                renderer.material.SetTexture("_MainTex", tex);
             }
         }
         if (tex != null && isGui)
@@ -361,7 +365,12 @@ public class Ultralight : MonoBehaviour
             if (tex == null || tex.width != vd.w || tex.height != vd.h)
             {
                 Debug.Log($"Creating texture {vd.w} {vd.h}");
-                tex = new Texture2D(vd.w, vd.h);
+                tex = new Texture2D(vd.w, vd.h, TextureFormat.RGBA32, false);
+            }
+            for (int i = 0; i < vd.data.Length; i++)
+            {
+                Color32 c = vd.data[i];
+                vd.data[i] = new Color32(c.b, c.g, c.r, c.a);
             }
             tex.SetPixels32(vd.data);
             tex.Apply();

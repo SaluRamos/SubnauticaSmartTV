@@ -19,7 +19,8 @@ Unity/Assets/generatedAssetBundles
 Unity/Assets/Resources/video.mp4
 Unity/Assets/build-ultralight/UltraLight/ulbridge
 Unity/Assets/build-ultralight/UltraLight/x64
-Unity/default/
+Unity/default
+Unity/ultralight.log
 
 SmartTVMod/bin/
 SmartTVMod/obj/
