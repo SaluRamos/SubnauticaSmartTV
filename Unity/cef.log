@@ -1,0 +1,48 @@
+[0720/175814.726:VERBOSE1:pref_proxy_config_tracker_impl.cc(151)] 0000028D1059D510: set chrome proxy config service to 0000028D1059D1F0
+[0720/175814.726:VERBOSE1:pref_proxy_config_tracker_impl.cc(278)] 0000028D1059D510: Done pushing proxy to UpdateProxyConfig
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Pilot' log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Aviator' log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: DigiCert Log Server
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Rocketeer' log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Venafi log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec 'Vega' log
+[0720/175814.727:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: CNNIC CT log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: WoSign log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: StartCom CT log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Skydiver' log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Icarus' log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Izenpe log
+[0720/175814.728:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Certly.IO log
+[0720/175814.728:ERROR:proxy_service_factory.cc(116)] Cannot use V8 Proxy resolver in single process mode.
+[0720/175814.743:VERBOSE1:webrtc_internals.cc(99)] Could not get the download directory.
+[0720/175814.755:WARNING:histograms.cc(40)] Started multiple compositor clients (Browser, Renderer) in one process. Some metrics will be disabled.
+[0720/175814.756:ERROR:child_thread_impl.cc(762)] Request for unknown Channel-associated interface: ui::mojom::GpuMain
+[0720/175814.758:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/175814.773:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/175814.775:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/175814.874:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/180513.478:VERBOSE1:pref_proxy_config_tracker_impl.cc(151)] 00000247B7DC5220: set chrome proxy config service to 00000247B7E8FA70
+[0720/180513.478:VERBOSE1:pref_proxy_config_tracker_impl.cc(278)] 00000247B7DC5220: Done pushing proxy to UpdateProxyConfig
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Pilot' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Aviator' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: DigiCert Log Server
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Rocketeer' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Venafi log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec 'Vega' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: CNNIC CT log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: WoSign log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: StartCom CT log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Skydiver' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Icarus' log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Izenpe log
+[0720/180513.479:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Certly.IO log
+[0720/180513.479:ERROR:proxy_service_factory.cc(116)] Cannot use V8 Proxy resolver in single process mode.
+[0720/180513.493:VERBOSE1:webrtc_internals.cc(99)] Could not get the download directory.
+[0720/180513.503:WARNING:histograms.cc(40)] Started multiple compositor clients (Browser, Renderer) in one process. Some metrics will be disabled.
+[0720/180513.514:ERROR:child_thread_impl.cc(762)] Request for unknown Channel-associated interface: ui::mojom::GpuMain
+[0720/180513.516:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/180513.519:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/180513.525:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
+[0720/180513.615:VERBOSE1:gles2_cmd_decoder.cc(3297)] GL_OES_packed_depth_stencil supported.
