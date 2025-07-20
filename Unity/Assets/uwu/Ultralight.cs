@@ -99,7 +99,7 @@ public enum Anchor
     AnchorEnd
 }
 
-public class Ultralight: MonoBehaviour
+public class Ultralight : MonoBehaviour
 {
     public int width = 640;
     public int height = 480;
@@ -117,16 +117,12 @@ public class Ultralight: MonoBehaviour
     Texture2D tex;
     int x;
     int y;
-    public void Awake()
-    {
-    }
-    public void OnDestroy()
-    {
-    }
+
     public void LoadURL(string url)
     {
         ULBridge.ulbridge_view_load_url(gameObject.name, url);
     }
+
     public void ExecJavascript(string js)
     {
         if (created)
@@ -137,9 +133,10 @@ public class Ultralight: MonoBehaviour
             execJavascriptNow = true;
         }
     }
-    private ViewData GetView(bool force=false)
+
+    private ViewData GetView(bool force = false)
     {
-        ViewData res = new ViewData {};
+        ViewData res = new ViewData { };
         var rawDirty = ULBridge.ulbridge_view_is_dirty(gameObject.name);
         if (!force && !rawDirty)
         {
@@ -152,7 +149,8 @@ public class Ultralight: MonoBehaviour
         int nh;
         int stride;
         var pixels = ULBridge.ulbridge_view_get_pixels(gameObject.name, out nw, out nh, out stride);
-        unsafe {
+        unsafe
+        {
             if (pixels.ToPointer() == null)
                 return null;
         }
@@ -160,20 +158,22 @@ public class Ultralight: MonoBehaviour
         res.h = height;
         res.viewWidth = width;
         res.viewHeight = height;
-        res.data = new Color32[res.w*res.h];
-        unsafe {
+        res.data = new Color32[res.w * res.h];
+        unsafe
+        {
             var scolors = (Color32*)pixels.ToPointer();
-            for (int y=0; y<res.viewHeight; ++y)
+            for (int y = 0; y < res.viewHeight; ++y)
             {
-                var start = scolors + y*stride/4;
-                for (int x=0; x<res.viewWidth; ++x)
-                    res.data[x+(res.viewHeight-y-1)*res.viewWidth] = start[x];
+                var start = scolors + y * stride / 4;
+                for (int x = 0; x < res.viewWidth; ++x)
+                    res.data[x + (res.viewHeight - y - 1) * res.viewWidth] = start[x];
             }
         }
         ULBridge.ulbridge_view_unlock_pixels(gameObject.name);
         res.changed = true;
         return res;
     }
+
     void Update()
     {
         if (!created)
@@ -211,32 +211,33 @@ public class Ultralight: MonoBehaviour
         {
             var mp = Input.mousePosition;
             mp.y = Screen.height - mp.y;
-            var isIn = (mp.x >= x && mp.y >= y && mp.x <= x+tex.width && mp.y <= y+tex.height);
+            var isIn = (mp.x >= x && mp.y >= y && mp.x <= x + tex.width && mp.y <= y + tex.height);
             if (isIn)
             {
                 var emited = false;
-                for (int b=0; b<3; ++b)
+                for (int b = 0; b < 3; ++b)
                 {
                     if (Input.GetMouseButtonDown(b))
                     {
                         Debug.Log("button down");
-                        ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x-x, (int)mp.y-y, 1, b+1);
+                        ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x - x, (int)mp.y - y, 1, b + 1);
                         emited = true;
                     }
                     if (Input.GetMouseButtonUp(b))
                     {
                         Debug.Log("button up");
                         emited = true;
-                        ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x-x, (int)mp.y-y, 2, b+1);
+                        ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x - x, (int)mp.y - y, 2, b + 1);
                     }
                 }
                 if (!emited)
-                    ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x - x, (int)mp.y-y, 0, 0);
+                    ULBridge.ulbridge_view_mouse_event(gameObject.name, (int)mp.x - x, (int)mp.y - y, 0, 0);
                 if (Input.mouseScrollDelta.y != 0)
                     ULBridge.ulbridge_view_scroll_event(gameObject.name, 0, (int)Input.mouseScrollDelta.y, 1);
             }
         }
     }
+
     static private Dictionary<KeyCode, int> keycodeMap = new Dictionary<KeyCode, int>
     {
         {KeyCode.Backspace, 0x08},
@@ -343,6 +344,7 @@ public class Ultralight: MonoBehaviour
         {KeyCode.RightAlt, 0x12},
         {KeyCode.Print, 0x2A},
     };
+
     void OnGUI()
     {
         if (!isGui || !created)
@@ -377,9 +379,9 @@ public class Ultralight: MonoBehaviour
         x += offsetX;
         y += offsetY;
         GUI.DrawTexture(new Rect(x, y, width, height), tex, ScaleMode.StretchToFill, true);
-    
+
         var mp = Input.mousePosition;
-        var isIn = (mp.x >= x && mp.y >= y && mp.x <= x+tex.width && mp.y <= y+tex.height);
+        var isIn = (mp.x >= x && mp.y >= y && mp.x <= x + tex.width && mp.y <= y + tex.height);
         if (isIn)
         {
             var ev = Event.current;
@@ -405,4 +407,5 @@ public class Ultralight: MonoBehaviour
             }
         }
     }
+    
 }

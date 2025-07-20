@@ -130,24 +130,28 @@ void BridgeListener::OnDOMReady(View* view, uint64_t frame_id, bool is_main_fram
 
 static bool initialized = false;
 extern "C" ULBAPI void ulbridge_init(bool gpu) {
-  std::cerr << "***ULBRIDGE INIT " << initialized << std::endl;
-  if (initialized)
-    return;
-  initialized = true;
-  // Do any custom config here
-  Config config;
-  config.resource_path = "./resources/";
-  config.use_gpu_renderer = gpu;
-  config.device_scale = 1.0;
-  //config.force_repaint = true;
-  Platform::instance().set_config(config);
-  //Platform::instance().set_gpu_driver(my_gpu_driver);
-  //Platform::instance().set_file_system(new LocalFileSystem());
-  Platform::instance().set_font_loader(GetPlatformFontLoader());
-  Platform::instance().set_file_system(GetPlatformFileSystem("."));
-  Platform::instance().set_logger(GetDefaultLogger("ultralight.log"));
-  // Create the library
-  renderer = Renderer::Create();
+    std::cerr << "***ULBRIDGE INIT " << initialized << std::endl;
+    if (initialized)
+        return;
+    initialized = true;
+
+    // As configurações da plataforma agora são definidas diretamente nela.
+    Platform::instance().set_font_loader(GetPlatformFontLoader());
+
+    // O FileSystem com "." define o diretório raiz para "file:///" URLs,
+    // substituindo o antigo 'resource_path'.
+    Platform::instance().set_file_system(GetPlatformFileSystem("."));
+
+    Platform::instance().set_logger(GetDefaultLogger("ultralight.log"));
+
+    // A Config ainda existe, mas com menos opções. Podemos usá-la
+    // para coisas como CSS padrão, se quisermos.
+    Config config;
+    // Exemplo: config.user_stylesheet = "body { background: #00000000; }";
+    Platform::instance().set_config(config);
+
+    // Crie o Renderer DEPOIS de configurar a plataforma.
+    renderer = Renderer::Create();
 }
 
 enum class RequestType
@@ -236,9 +240,21 @@ extern "C" ULBAPI void ulbridge_update()
 
 extern "C" ULBAPI void ulbridge_view_create(const char* name, int w, int h)
 {
-  RefPtr<View> view = renderer->CreateView(w, h, true, nullptr);
-  views[name] = ViewData{ view, nullptr};
-  views[name].listener = std::make_unique<BridgeListener>(name, view.get());
+    // Crie uma configuração para a View
+    ViewConfig view_config;
+
+    // 'use_gpu_renderer' foi movido para cá. Como o UwU usa renderização
+    // por CPU (copiando pixels), definimos como 'false'.
+    view_config.is_accelerated = false;
+    view_config.enable_javascript = true;
+    // O antigo parâmetro 'true' para transparência agora é uma propriedade.
+    view_config.is_transparent = true;
+
+    // Crie a View com a nova configuração.
+    RefPtr<View> view = renderer->CreateView(w, h, view_config, nullptr);
+
+    views[name] = ViewData{ view, nullptr };
+    views[name].listener = std::make_unique<BridgeListener>(name, view.get());
 }
 
 extern "C" ULBAPI bool ulbridge_view_is_dirty(const char* name)
