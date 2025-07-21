@@ -17,7 +17,11 @@ namespace SmartTV
         {
             if (cameraRef == null)
             {
-                cameraRef = FindObjectsOfType<Camera>()[0];
+                Camera[] cameras = FindObjectsOfType<Camera>();
+                if (cameras.Length > 0)
+                { 
+                    cameraRef = cameras[0];
+                }
             }
         }
 
