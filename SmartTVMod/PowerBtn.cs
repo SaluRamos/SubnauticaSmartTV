@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace SmartTV
@@ -20,12 +20,15 @@ namespace SmartTV
             screenMaterial = transform.parent.parent.GetComponent<Renderer>().material;
             powerImage = transform.Find("RawImage").GetComponent<RawImage>();
             videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
+            Toggle(); //turn off the tv on start
         }
 
         private void Toggle()
-        { 
+        {
             isOn = !isOn;
+
             screenMaterial.color = isOn ? Color.white : Color.black;
+
             foreach (Transform child in transform.parent)
             {
                 if (child != this.transform)
@@ -33,13 +36,21 @@ namespace SmartTV
                     child.gameObject.SetActive(isOn);
                 }
             }
-            powerImage.color = isOn ? Color.white : Color.red;
-            if (videoToggleControl.IsPlaying() && !isOn)
+
+            if (videoToggleControl != null)
             {
-                videoToggleControl.Pause();
+                if (!isOn)
+                {
+                    videoToggleControl.Pause();
+                }
+                else 
+                {
+                    videoToggleControl.Play();
+                }
             }
         }
-    
     }
-
 }
+                    
+                
+           
