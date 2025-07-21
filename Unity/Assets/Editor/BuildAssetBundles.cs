@@ -19,8 +19,6 @@ public class ForceIncludeBuilder
 
         var assetPaths = new List<string>();
         assetPaths.Add(tvRootPath);
-        assetPaths.Add("Assets/Resources/pause.png");
-        assetPaths.Add("Assets/Resources/play.png");
         assetPaths.Add("Assets/Resources/TVSprite.png");
 
         if (AssetDatabase.CopyAsset(tvRootPath, theatherTvRootPath))

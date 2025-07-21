@@ -155,7 +155,7 @@ namespace SmartTV
             powerBtnObj.AddComponent<BtnFade>().fadeOutOnStart = true;
 
             GameObject seekSliderObj = prefab.transform.Find("GameObject/Plane/Canvas/SeekSlider").gameObject;
-            //seekSliderObj.gameObject.AddComponent<VideoScrubber>();
+            seekSliderObj.gameObject.AddComponent<VideoScrubber>();
             seekSliderObj.gameObject.AddComponent<BtnFade>().fadeOutOnStart = true;
 
             prefab.AddComponent<SmartTVAutoLoader>();
