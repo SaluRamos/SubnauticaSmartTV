@@ -8,17 +8,25 @@ public class ForceIncludeBuilder
     [MenuItem("Tools/Build SmartTV Bundle (Fixed No Warnings)")]
     public static void BuildBundle()
     {
-        string outputDir = "Assets/generatedAssetBundles";
+        string outputDir = "G:\\Steam\\steamapps\\common\\Subnautica\\BepInEx\\plugins\\SmartTV";
         if (!Directory.Exists(outputDir))
         { 
             Directory.CreateDirectory(outputDir);
         }
 
+        string tvRootPath = "Assets/Prefabs/TVRoot.prefab";
+        string theatherTvRootPath = "Assets/Prefabs/TheaterTVRoot.prefab";
+
         var assetPaths = new List<string>();
-        assetPaths.Add("Assets/Prefabs/TVRoot.prefab");
+        assetPaths.Add(tvRootPath);
         assetPaths.Add("Assets/Resources/pause.png");
         assetPaths.Add("Assets/Resources/play.png");
         assetPaths.Add("Assets/Resources/TVSprite.png");
+
+        if (AssetDatabase.CopyAsset(tvRootPath, theatherTvRootPath))
+        {
+            assetPaths.Add(theatherTvRootPath);
+        }
 
         var build = new AssetBundleBuild {
             assetBundleName = "60insmarttv",
