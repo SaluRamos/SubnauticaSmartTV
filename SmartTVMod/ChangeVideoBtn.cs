@@ -15,13 +15,12 @@ namespace SmartTV
     {
 
         private VideoToggleControl videoToggleControl;
-        public UnityAction action;
+        private UnityAction action;
 
         void Start()
         {
-            videoToggleControl = transform.parent.parent.GetComponent<VideoToggleControl>();
+            videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
             Button buttonComponent = GetComponent<Button>();
-            buttonComponent.onClick.RemoveAllListeners();
             if (gameObject.name.Contains("Next"))
             { 
                 action = videoToggleControl.NextVideo;

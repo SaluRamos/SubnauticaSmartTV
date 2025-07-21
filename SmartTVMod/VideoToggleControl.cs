@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.Video;
-using UnityEngine.UI;
-using System.Collections;
+﻿using System.Collections;
+using System.Numerics;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace SmartTV
 {
@@ -29,13 +30,16 @@ namespace SmartTV
                 es.AddComponent<StandaloneInputModule>();
             }
             videoPlayer = transform.parent.parent.GetComponent<VideoPlayer>();
+            videoPlayer.source = VideoSource.Url;
+            videoPlayer.loopPointReached += OnVideoFinished;
+            videoPlayer.isLooping = false;
             pauseImage = transform.Find("pause").GetComponent<RawImage>();
             playImage = transform.Find("play").GetComponent<RawImage>();
         }
 
-        public void SetCurrentVideoIndex(int index)
+        public bool IsPlaying()
         {
-            currentVideoIndex = index;
+            return isPlaying;
         }
 
         public void Toggle()
@@ -104,38 +108,9 @@ namespace SmartTV
         public void ChangeVideo(string path)
         {
             path = "file://" + path.Replace("\\", "/");
-            Debug.Log($"Changing video to: {path}");
-            VideoPlayer[] players = FindObjectsOfType<VideoPlayer>();
-            foreach (VideoPlayer player in players)
-            {
-                Transform button = player.transform.Find("Canvas/Button");
-                if (button == null) continue;
-
-                VideoToggleControl videoToggleControl = button.GetComponent<VideoToggleControl>();
-                if (videoToggleControl == null) continue;
-
-                bool isPlaying = player.isPlaying;
-
-                player.source = VideoSource.Url;
-                player.url = path;
-                player.isLooping = false;
-                player.loopPointReached -= OnVideoFinished;
-                player.loopPointReached += OnVideoFinished;
-
-                // Optional: Update play/pause icon visuals
-                Transform pauseIcon = button.Find("pause");
-                Transform playIcon = button.Find("play");
-                if (pauseIcon != null && playIcon != null)
-                {
-                    RawImage pauseImage = pauseIcon.GetComponent<RawImage>();
-                    RawImage playImage = playIcon.GetComponent<RawImage>();
-                    pauseImage.enabled = false;
-                    playImage.enabled = true;
-                }
-
-                videoToggleControl.Pause(); // Ensure it's not playing
-                videoToggleControl.Play();  // Now force play
-            }
+            videoPlayer.url = path;
+            Pause(); // Ensure it's not playing
+            Play(); // Now force play
         }
 
     }
