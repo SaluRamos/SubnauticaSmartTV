@@ -14,19 +14,21 @@ namespace SmartTV
     public class ChangeVideoBtn : MonoBehaviour
     {
 
+        private VideoToggleControl videoToggleControl;
         public UnityAction action;
 
         void Start()
         {
+            videoToggleControl = transform.parent.parent.GetComponent<VideoToggleControl>();
             Button buttonComponent = GetComponent<Button>();
             buttonComponent.onClick.RemoveAllListeners();
             if (gameObject.name.Contains("Next"))
             { 
-                action = SmartTVMain.instance.NextVideo;
+                action = videoToggleControl.NextVideo;
             }
-            else if (gameObject.name.Contains("Previous"))
+            else
             {
-                action = SmartTVMain.instance.PreviousVideo;
+                action = videoToggleControl.PreviousVideo;
             }
             buttonComponent.onClick.AddListener(action);
             if (FindObjectOfType<EventSystem>() == null)

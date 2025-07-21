@@ -20,6 +20,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using static Nautilus.Assets.PrefabTemplates.FabricatorTemplate;
 using static RadicalLibrary.Spline;
+using System.Threading;
 
 namespace SmartTV
 {
@@ -30,11 +31,8 @@ namespace SmartTV
 
         public static SmartTVMain instance;
         public static PrefabInfo smartTVInfo { get; } = PrefabInfo.WithTechType("SmartTV", "Smart TV", "A 60-inch Smart TV.");
-        public GameObject tvPrefab;
-        public GameObject tvPrefabParent;
-
+        public static PrefabInfo bigSmartTVInfo { get; } = PrefabInfo.WithTechType("TheatherSmartTV", "Theather Smart TV", "A Theather Smart TV.");
         public string[] videos;
-        private int currentVideoIndex = 0;
         private string videosFolderPath;
 
         private void Awake()
@@ -42,7 +40,7 @@ namespace SmartTV
             instance = this;
             string modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string bundlePath = modFolder + "/60insmarttv";
-            videosFolderPath = modFolder + "/Videos/"; 
+            videosFolderPath = modFolder + "/Videos/";
             UpdateVideosFolder(null, null);
 
             AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);
@@ -52,79 +50,28 @@ namespace SmartTV
                 return;
             }
 
-            tvPrefab = bundle.LoadAsset<GameObject>("TVRoot");
-            if (tvPrefab == null)
-            { 
-                Logger.LogError("TV prefab not found in AssetBundle.");
-                return;
-            }
-
             Sprite icon = bundle.LoadAsset<Sprite>("TVSprite");
-            if (icon != null)
-            {
-                smartTVInfo.WithIcon(icon);
-            }
-            else
-            {
-                Debug.LogError("smarttv icon is null");
-            }
 
-            PrefabUtils.AddBasicComponents(tvPrefab, smartTVInfo.ClassID, smartTVInfo.TechType, LargeWorldEntity.CellLevel.Global);
-
-            GameObject model = tvPrefab.transform.Find("GameObject").gameObject; //a child gameobject that contains the models
-            if (model == null)
+            GameObject smartTvPrefab = bundle.LoadAsset<GameObject>("TVRoot");
+            if (smartTvPrefab == null)
             {
-                Debug.LogError("Model GameObject not found in TV prefab.");
+                Logger.LogError("base TV prefab not found in AssetBundle.");
                 return;
             }
-            model.transform.localPosition = new Vector3(0, -1, 0);
+            ConfigTVPrefab(ref smartTvPrefab);
 
-            float height = GetTotalHeight(model)/2;
-            
-            GameObject tvObj = tvPrefab.transform.Find("GameObject/tv").gameObject;
-            AddMarmoSetShaderToGameObject(tvObj, new string[]{ "MARMO_SPECMAP" });
-
-
-            foreach (Transform child in model.transform)
+            GameObject theatherTvPrefab = bundle.LoadAsset<GameObject>("TheaterTVRoot");
+            if (theatherTvPrefab == null)
             {
-                child.transform.localPosition = new Vector3(child.transform.localPosition.x, child.transform.localPosition.y + height, child.transform.localPosition.z);
+                Logger.LogError("base TV prefab not found in AssetBundle.");
+                return;
             }
+            ConfigTVPrefab(ref theatherTvPrefab);
+            theatherTvPrefab.transform.localScale *= 1.5f;
 
-            GameObject planeObj = tvPrefab.transform.Find("GameObject/Plane").gameObject;
-            AudioSource audioSource = planeObj.GetComponent<AudioSource>();
-            audioSource.spatialBlend = 1f; //set spatial blend to 1 to make it 3D audio
-            audioSource.spatialize = true; //enable spatialization
-            //Material planeObjMat = AddMarmoSetShaderToGameObject(planeObj, new string[] { });
+            // --- USING NAUTILUS ---
 
-            GameObject canvasObj = tvPrefab.transform.Find("GameObject/Plane/Canvas").gameObject;
-            canvasObj.AddComponent<AttachCameraToCanvas>();
-
-            GameObject videoToggleObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Button").gameObject;
-            videoToggleObj.AddComponent<VideoToggleControl>();
-            videoToggleObj.AddComponent<BtnFade>();
-
-            GameObject nextVideoObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/NextVideo").gameObject;
-            nextVideoObj.AddComponent<ChangeVideoBtn>();
-            nextVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
-
-            GameObject previousVideoObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/PreviousVideo").gameObject;
-            previousVideoObj.AddComponent<ChangeVideoBtn>();
-            previousVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
-
-            GameObject volumeSliderObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Slider").gameObject;
-            volumeSliderObj.AddComponent<BtnFade>().fadeOutOnStart = true;
-
-            GameObject powerBtnObj = tvPrefab.transform.Find("GameObject/Plane/Canvas/Power").gameObject;
-            powerBtnObj.AddComponent<PowerBtn>();
-            powerBtnObj.AddComponent<BtnFade>().fadeOutOnStart = true;
-
-            ConstructableFlags constructableFlags = ConstructableFlags.Inside | ConstructableFlags.Rotatable | ConstructableFlags.Ground | ConstructableFlags.AllowedOnConstructable | ConstructableFlags.Submarine | ConstructableFlags.Outside;
-            PrefabUtils.AddConstructable(tvPrefab, smartTVInfo.TechType, constructableFlags, model);
-
-            CustomPrefab prefab = new CustomPrefab(smartTVInfo);
-            prefab.SetGameObject(tvPrefab);
-
-            string recipeJson = @"
+            string smartTVRecipeJson = @"
             {
                 ""craftAmount"": 1,
                 ""Ingredients"": [
@@ -138,15 +85,122 @@ namespace SmartTV
                     }
                 ]
             }";
-            prefab.SetRecipeFromJson(recipeJson);
-            prefab.SetUnlock(TechType.Titanium);
-            prefab.SetPdaGroupCategory(TechGroup.InteriorModules, TechCategory.InteriorModule);
-            prefab.Register();
+
+            string theaterRecipeJson = @"
+            {
+                ""craftAmount"": 1,
+                ""Ingredients"": [
+                    {
+                        ""techType"": ""Titanium"",
+                        ""amount"": 3
+                    },
+                    {
+                        ""techType"": ""CopperWire"",
+                        ""amount"": 1
+                    }
+                ]
+            }";
+
+            CreatePrefab(smartTVInfo, smartTvPrefab, smartTVRecipeJson, icon);
+            CreatePrefab(bigSmartTVInfo, theatherTvPrefab, theaterRecipeJson, icon);
+        }
+
+        private void ConfigTVPrefab(ref GameObject prefab)
+        {
+            GameObject model = prefab.transform.Find("GameObject").gameObject; //a child gameobject that contains the models
+            if (model == null)
+            {
+                Debug.LogError("Model GameObject not found in TV prefab.");
+            }
+            model.transform.localPosition = new Vector3(0, -1, 0);
+
+            float height = GetTotalHeight(model) / 2;
+            GameObject tvObj = prefab.transform.Find("GameObject/tv").gameObject;
+            AddMarmoSetShaderToGameObject(tvObj, new string[] { "MARMO_SPECMAP" });
+
+            foreach (Transform child in model.transform)
+            {
+                child.transform.localPosition = new Vector3(child.transform.localPosition.x, child.transform.localPosition.y + height, child.transform.localPosition.z);
+            }
+
+            GameObject planeObj = prefab.transform.Find("GameObject/Plane").gameObject;
+            Renderer screenRenderer = planeObj.GetComponent<Renderer>();
+            Material screenMat = screenRenderer.sharedMaterial;
+            planeObj.AddComponent<SmartTVAutoLoader>();
+
+            AudioSource audioSource = planeObj.GetComponent<AudioSource>();
+            audioSource.spatialBlend = 1f; //set spatial blend to 1 to make it 3D audio
+            audioSource.spatialize = true; //enable spatialization
+
+            GameObject canvasObj = prefab.transform.Find("GameObject/Plane/Canvas").gameObject;
+            canvasObj.AddComponent<AttachCameraToCanvas>();
+
+            GameObject videoToggleObj = prefab.transform.Find("GameObject/Plane/Canvas/Button").gameObject;
+            videoToggleObj.AddComponent<VideoToggleControl>();
+            videoToggleObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            GameObject nextVideoObj = prefab.transform.Find("GameObject/Plane/Canvas/NextVideo").gameObject;
+            nextVideoObj.AddComponent<ChangeVideoBtn>();
+            nextVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            GameObject previousVideoObj = prefab.transform.Find("GameObject/Plane/Canvas/PreviousVideo").gameObject;
+            previousVideoObj.AddComponent<ChangeVideoBtn>();
+            previousVideoObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            GameObject volumeSliderObj = prefab.transform.Find("GameObject/Plane/Canvas/Slider").gameObject;
+            volumeSliderObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            GameObject powerBtnObj = prefab.transform.Find("GameObject/Plane/Canvas/Power").gameObject;
+            powerBtnObj.AddComponent<PowerBtn>();
+            powerBtnObj.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            GameObject seekSliderObj = prefab.transform.Find("GameObject/Plane/Canvas/SeekSlider").gameObject;
+            //seekSliderObj.gameObject.AddComponent<VideoScrubber>();
+            seekSliderObj.gameObject.AddComponent<BtnFade>().fadeOutOnStart = true;
+
+            prefab.AddComponent<SmartTVAutoLoader>();
+        }
+
+        private void CreatePrefab(PrefabInfo info, GameObject prefab, string recipeJson, Sprite icon)
+        {
+            if (prefab == null)
+            {
+                Logger.LogError($"Prefab for {info.ClassID} is null.");
+            }
+
+            PrefabUtils.AddBasicComponents(prefab, info.ClassID, info.TechType, LargeWorldEntity.CellLevel.Global);
+
+            GameObject model = prefab.transform.Find("GameObject").gameObject;
+            if (model == null)
+            { 
+                Logger.LogError($"Model GameObject not found in prefab {info.ClassID}.");
+            }
+
+            ConstructableFlags constructableFlags = ConstructableFlags.Inside | ConstructableFlags.Rotatable | ConstructableFlags.Ground | ConstructableFlags.AllowedOnConstructable | ConstructableFlags.Submarine | ConstructableFlags.Outside;
+
+            PrefabUtils.AddConstructable(prefab, info.TechType, constructableFlags, model);
+
+            CustomPrefab customPrefab = new CustomPrefab(info);
+
+            if (icon != null)
+            {
+                info.WithIcon(icon);
+            }
+            else
+            { 
+                Logger.LogError("TV icon not found in AssetBundle.");
+            }
+
+            customPrefab.SetGameObject(prefab);
+            customPrefab.SetRecipeFromJson(recipeJson);
+            customPrefab.SetPdaGroupCategory(TechGroup.InteriorModules, TechCategory.InteriorModule);
+            customPrefab.SetUnlock(TechType.Titanium); //unlock with Titanium
+            customPrefab.Register();
         }
 
         public static Camera mainCamera;
         private float minDistance = 3f;
-        private float maxDistance = 10f;
+        private float maxDistance = 20f;
 
         private Material AddMarmoSetShaderToGameObject(GameObject obj, string[] shaderKeys)
         {
@@ -155,9 +209,10 @@ namespace SmartTV
             Material newMat = new Material(MaterialUtils.Shaders.MarmosetUBER);
             newMat.color = oldMat.color;
             foreach (string key in shaderKeys)
-            { 
+            {
                 newMat.EnableKeyword(key);
             }
+            newMat.SetColor("_Color", Color.black);
             newMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive | MaterialGlobalIlluminationFlags.EmissiveIsBlack;
             renderer.sharedMaterial = newMat;
             return newMat;
@@ -216,61 +271,6 @@ namespace SmartTV
                             file.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) ||
                             file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase)).ToArray();
             Debug.Log($"Videos found: {videos.Length} in {folderPath}");
-            currentVideoIndex = 0;
-        }
-
-        public void NextVideo()
-        {
-            Debug.Log("NextVideo called");
-            if (videos.Length == 0)
-            {
-                return;
-            }
-            currentVideoIndex++;
-            if (currentVideoIndex > videos.Length - 1)
-            {
-                currentVideoIndex = 0;
-            }
-            ChangeVideo(videos[currentVideoIndex]);
-        }
-
-        public void PreviousVideo()
-        {
-            Debug.Log("PreviousVideo called");
-            if (videos.Length == 0)
-            {
-                return;
-            }
-            currentVideoIndex--;
-            if (currentVideoIndex < 0)
-            { 
-                currentVideoIndex = videos.Length - 1;
-            }
-            ChangeVideo(videos[currentVideoIndex]);
-        }
-
-        public void ChangeVideo(string path)
-        {
-            path = "file://" + path.Replace("\\", "/");
-            Debug.Log($"Changing video to: {path}");
-            VideoPlayer[] players = FindObjectsOfType<VideoPlayer>();
-            foreach (VideoPlayer player in players)
-            {
-                bool isPlaying = player.isPlaying;
-                player.source = VideoSource.Url;
-                player.url = path;
-                VideoToggleControl videoToggleControl = player.transform.Find("Canvas/Button").GetComponent<VideoToggleControl>();
-                if (isPlaying)
-                {
-                    videoToggleControl.Pause();
-                    videoToggleControl.Play();
-                }
-                else
-                {
-                    videoToggleControl.Play();
-                    videoToggleControl.Pause();
-                }
-            }
         }
 
         public float GetTotalHeight(GameObject obj)
@@ -279,12 +279,11 @@ namespace SmartTV
             if (renderers.Length == 0) return 0f;
             Bounds bounds = renderers[0].bounds;
             foreach (var rend in renderers)
-            { 
+            {
                 bounds.Encapsulate(rend.bounds);
             }
             return bounds.size.y;
         }
 
     }
-
 }
