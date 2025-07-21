@@ -27,10 +27,7 @@ namespace SmartTV
                 targetGroup.blocksRaycasts = true;
                 targetGroup.ignoreParentGroups = false;
             }
-            if (fadeOutOnStart)
-            {
-                OnPointerExit(null);
-            }
+            InstantUpdateVisibility(!fadeOutOnStart);
         }
 
         private float minDistanceToInteract = 3f;
@@ -41,7 +38,7 @@ namespace SmartTV
             {
                 long actualTimestamp = Stopwatch.GetTimestamp();
                 long elapsedTicks = actualTimestamp - startLookingToBtnTimestamp;
-                double elapsedSeconds = (double) elapsedTicks / Stopwatch.Frequency;
+                double elapsedSeconds = (double)elapsedTicks / Stopwatch.Frequency;
                 if (elapsedSeconds >= timeToFadeOutAutomatically)
                 {
                     UpdateVisibility(false);
@@ -69,7 +66,7 @@ namespace SmartTV
             UpdateVisibility(false);
         }
 
-        private void UpdateVisibility(bool fadeIn)
+        public void UpdateVisibility(bool fadeIn)
         {
             if (targetGroup == null)
             {
@@ -96,6 +93,18 @@ namespace SmartTV
                 yield return null;
             }
             targetGroup.alpha = targetValue;
+        }
+
+        public void InstantUpdateVisibility(bool on)
+        {
+            if (on)
+            {
+                targetGroup.alpha = 1f;
+            }
+            else
+            {
+                targetGroup.alpha = 0f;
+            }
         }
 
     }
