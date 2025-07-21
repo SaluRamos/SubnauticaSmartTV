@@ -29,20 +29,21 @@ namespace SmartTV
     public class SmartTVMain : BaseUnityPlugin
     {
 
+        public static string modFolder;
+        public static string videosFolderPath;
         public static SmartTVMain instance;
         public static PrefabInfo smartTVInfo { get; } = PrefabInfo.WithTechType("SmartTV", "Smart TV", "A 60-inch Smart TV.");
         public static PrefabInfo bigSmartTVInfo { get; } = PrefabInfo.WithTechType("TheatherSmartTV", "Theather Smart TV", "A Theather Smart TV.");
         public string[] videos;
-        private string videosFolderPath;
 
         private void Awake()
         {
             instance = this;
-            string modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string bundlePath = modFolder + "/60insmarttv";
+            modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             videosFolderPath = modFolder + "/Videos/";
             UpdateVideosFolder(null, null);
 
+            string bundlePath = modFolder + "/60insmarttv";
             AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);
             if (bundle == null)
             {
@@ -156,7 +157,9 @@ namespace SmartTV
 
             GameObject seekSliderObj = prefab.transform.Find("GameObject/Plane/Canvas/SeekSlider").gameObject;
             seekSliderObj.gameObject.AddComponent<VideoScrubber>();
-            seekSliderObj.gameObject.AddComponent<BtnFade>().fadeOutOnStart = true;
+            BtnFade seekSliderFade = seekSliderObj.gameObject.AddComponent<BtnFade>();
+            seekSliderFade.fadeOutOnStart = true;
+            seekSliderFade.fadeOutWhenLookingTooMuch = false;
 
             prefab.AddComponent<SmartTVAutoLoader>();
         }

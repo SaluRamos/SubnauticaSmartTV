@@ -17,6 +17,16 @@ namespace SmartTV
         private bool isPlaying = true;
         private int currentVideoIndex = 0;
 
+        public int GetCurrentVideoIndex()
+        {
+            return currentVideoIndex;
+        }
+
+        public VideoPlayer GetVideoPlayer()
+        {
+            return videoPlayer;
+        }
+
         void Start()
         {
             Button buttonComponent = GetComponent<Button>();
@@ -109,8 +119,8 @@ namespace SmartTV
         {
             path = "file://" + path.Replace("\\", "/");
             videoPlayer.url = path;
-            Pause(); // Ensure it's not playing
-            Play(); // Now force play
+            Pause();
+            Play();
         }
 
     }

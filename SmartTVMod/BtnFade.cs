@@ -16,6 +16,7 @@ namespace SmartTV
         private CanvasGroup targetGroup;
         private Coroutine fadeRoutine;
         public bool fadeOutOnStart = false;
+        public bool fadeOutWhenLookingTooMuch = true;
 
         void Start()
         {
@@ -34,7 +35,7 @@ namespace SmartTV
 
         void LateUpdate()
         {
-            if (looking)
+            if (looking && fadeOutWhenLookingTooMuch)
             {
                 long actualTimestamp = Stopwatch.GetTimestamp();
                 long elapsedTicks = actualTimestamp - startLookingToBtnTimestamp;

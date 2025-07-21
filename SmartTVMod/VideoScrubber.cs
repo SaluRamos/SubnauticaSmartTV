@@ -10,7 +10,9 @@ namespace SmartTV
     public class VideoScrubber : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
 
+        private VideoThumbScrapper thumbScrapper;
         private VideoPlayer videoPlayer;
+        private VideoToggleControl videoToggleControl;
         private Slider slider;
         private Text timeText;
         private RawImage hoverThumbnail;
@@ -21,20 +23,23 @@ namespace SmartTV
             videoPlayer = transform.parent.parent.GetComponent<VideoPlayer>();
             slider = GetComponent<Slider>();
             timeText = transform.Find("ScrubTime").GetComponent<Text>();
-
-            slider.minValue = 0f;
+            videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
+            if (videoToggleControl == null)
+            { 
+                Debug.LogError("[VideoScrubber] Could not locate VideoToggleControl component.");
+            }
 
             Transform thumb = transform.Find("Handle Slide Area/Handle/RawImage");
             if (thumb != null)
             {
                 hoverThumbnail = thumb.GetComponent<RawImage>();
-                hoverThumbnail.enabled = true;
                 hoverThumbnail.color = Color.white;
             }
             else
             {
                 Debug.LogError("[Thumbnail] Could not locate ThumbnailPreview.");
             }
+            thumbScrapper = new VideoThumbScrapper(videoToggleControl);
         }
 
         void LateUpdate()
@@ -48,9 +53,13 @@ namespace SmartTV
 
             if (isDragging)
             {
-                videoPlayer.time = slider.value * videoPlayer.length;
+                double slideTime = slider.value * videoPlayer.length;
+                thumbScrapper.GetFrame(slideTime, hoverThumbnail);
             }
-            hoverThumbnail.texture = videoPlayer.texture;
+            else
+            { 
+                hoverThumbnail.texture = videoPlayer.texture;
+            }
         }
 
         private void UpdateTimeDisplay()
@@ -71,6 +80,12 @@ namespace SmartTV
         public void OnPointerUp(PointerEventData eventData)
         {
             isDragging = false;
+            videoPlayer.time = slider.value * videoPlayer.length;
+        }
+
+        void OnDestroy()
+        {
+            thumbScrapper.Dispose();
         }
 
     }
