@@ -1,5 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Numerics;
+using System.Security.Policy;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,15 +20,11 @@ namespace SmartTV
         private RawImage playImage;
         private bool isPlaying = true;
         private int currentVideoIndex = 0;
+        private string currentURL = "";
 
-        public int GetCurrentVideoIndex()
+        public string GetCurrentURL()
         {
-            return currentVideoIndex;
-        }
-
-        public VideoPlayer GetVideoPlayer()
-        {
-            return videoPlayer;
+            return currentURL;
         }
 
         void Start()
@@ -32,19 +32,13 @@ namespace SmartTV
             Button buttonComponent = GetComponent<Button>();
             buttonComponent.onClick.RemoveAllListeners();
             buttonComponent.onClick.AddListener(this.Toggle);
-            if (FindObjectOfType<EventSystem>() == null)
-            {
-                Debug.LogWarning("No EventSystem found, creating one.");
-                GameObject es = new GameObject("EventSystem");
-                es.AddComponent<EventSystem>();
-                es.AddComponent<StandaloneInputModule>();
-            }
             videoPlayer = transform.parent.parent.GetComponent<VideoPlayer>();
             videoPlayer.source = VideoSource.Url;
             videoPlayer.loopPointReached += OnVideoFinished;
             videoPlayer.isLooping = false;
             pauseImage = transform.Find("pause").GetComponent<RawImage>();
             playImage = transform.Find("play").GetComponent<RawImage>();
+            NextVideo();
         }
 
         public bool IsPlaying()
@@ -74,10 +68,11 @@ namespace SmartTV
 
         public void Play()
         {
-            isPlaying = true;
             videoPlayer.Play();
             playImage.enabled = false;
             pauseImage.enabled = true;
+            videoPlayer.Prepare();
+            isPlaying = true;
         }
 
         private void OnVideoFinished(VideoPlayer source)
@@ -87,39 +82,36 @@ namespace SmartTV
 
         public void NextVideo()
         {
-            Debug.Log("NextVideo called");
-            if (SmartTVMain.instance.videos.Length == 0)
+            if (SmartTVMain.videos.Length == 0)
             {
                 return;
             }
             currentVideoIndex++;
-            if (currentVideoIndex > SmartTVMain.instance.videos.Length - 1)
+            if (currentVideoIndex > SmartTVMain.videos.Length - 1)
             {
                 currentVideoIndex = 0;
             }
-            ChangeVideo(SmartTVMain.instance.videos[currentVideoIndex]);
+            ChangeVideo(SmartTVMain.videos[currentVideoIndex]);
         }
 
         public void PreviousVideo()
         {
-            Debug.Log("PreviousVideo called");
-            if (SmartTVMain.instance.videos.Length == 0)
+            if (SmartTVMain.videos.Length == 0)
             {
                 return;
             }
             currentVideoIndex--;
             if (currentVideoIndex < 0)
             {
-                currentVideoIndex = SmartTVMain.instance.videos.Length - 1;
+                currentVideoIndex = SmartTVMain.videos.Length - 1;
             }
-            ChangeVideo(SmartTVMain.instance.videos[currentVideoIndex]);
+            ChangeVideo(SmartTVMain.videos[currentVideoIndex]);
         }
 
-        public void ChangeVideo(string path)
+        private void ChangeVideo(string path)
         {
-            path = "file://" + path.Replace("\\", "/");
-            videoPlayer.url = path;
-            Pause();
+            currentURL = path;
+            videoPlayer.url = "file://" + currentURL;
             Play();
         }
 

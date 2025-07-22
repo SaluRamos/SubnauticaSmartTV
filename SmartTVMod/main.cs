@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using HarmonyLib;
 using Nautilus.Assets;
 using Nautilus.Assets.Gadgets;
 using Nautilus.Assets.PrefabTemplates;
@@ -9,8 +8,6 @@ using Nautilus.Crafting;
 using Nautilus.Extensions;
 using Nautilus.Utility;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,7 +17,6 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using static Nautilus.Assets.PrefabTemplates.FabricatorTemplate;
 using static RadicalLibrary.Spline;
-using System.Threading;
 
 namespace SmartTV
 {
@@ -34,7 +30,7 @@ namespace SmartTV
         public static SmartTVMain instance;
         public static PrefabInfo smartTVInfo { get; } = PrefabInfo.WithTechType("SmartTV", "Smart TV", "A 60-inch Smart TV.");
         public static PrefabInfo bigSmartTVInfo { get; } = PrefabInfo.WithTechType("TheatherSmartTV", "Theather Smart TV", "A Theather Smart TV.");
-        public string[] videos;
+        public static string[] videos;
 
         private void Awake()
         {
@@ -42,6 +38,7 @@ namespace SmartTV
             modFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             videosFolderPath = modFolder + "/Videos/";
             UpdateVideosFolder(null, null);
+            gameObject.AddComponent<VideoThumbScrapper>();
 
             string bundlePath = modFolder + "/60insmarttv";
             AssetBundle bundle = AssetBundle.LoadFromFile(bundlePath);
@@ -127,7 +124,6 @@ namespace SmartTV
             GameObject planeObj = prefab.transform.Find("GameObject/Plane").gameObject;
             Renderer screenRenderer = planeObj.GetComponent<Renderer>();
             Material screenMat = screenRenderer.sharedMaterial;
-            planeObj.AddComponent<SmartTVAutoLoader>();
 
             AudioSource audioSource = planeObj.GetComponent<AudioSource>();
             audioSource.spatialBlend = 1f; //set spatial blend to 1 to make it 3D audio
@@ -160,8 +156,6 @@ namespace SmartTV
             BtnFade seekSliderFade = seekSliderObj.gameObject.AddComponent<BtnFade>();
             seekSliderFade.fadeOutOnStart = true;
             seekSliderFade.fadeOutWhenLookingTooMuch = false;
-
-            prefab.AddComponent<SmartTVAutoLoader>();
         }
 
         private void CreatePrefab(PrefabInfo info, GameObject prefab, string recipeJson, Sprite icon)
@@ -250,12 +244,20 @@ namespace SmartTV
                             }
                             else
                             {
-                                float newVolume = Mathf.Clamp01(1f - (distance - minDistance) / (maxDistance - minDistance)); //função linear que é y=1 em x=3 e y=0 em x=10
+                                float newVolume = Mathf.Clamp01(1f - (distance - minDistance) / (maxDistance - minDistance)); //linear function is y=1 when x=3 and y=0 when x=10
                                 player.gameObject.GetComponent<AudioSource>().volume = Math.Min(maxVolume, newVolume);
                             }
                         }
                     }
                 }
+            }
+
+            if (FindObjectOfType<EventSystem>() == null)
+            {
+                Debug.LogWarning("No EventSystem found, creating one.");
+                GameObject es = new GameObject("EventSystem");
+                es.AddComponent<EventSystem>();
+                es.AddComponent<StandaloneInputModule>();
             }
         }
 
@@ -264,7 +266,7 @@ namespace SmartTV
             string folderPath = videosFolderPath;
             if (!Directory.Exists(folderPath))
             {
-                Logger.LogError($"Folder not found: {folderPath}");
+                Debug.LogError($"Folder not found: {folderPath}");
                 return;
             }
             videos = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
@@ -273,6 +275,10 @@ namespace SmartTV
                             file.EndsWith(".avi", StringComparison.OrdinalIgnoreCase) ||
                             file.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) ||
                             file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase)).ToArray();
+            for (int index = 0; index < videos.Length; index++)
+            {
+                videos[index] = videos[index].Replace("\\", "/");
+            }
             Debug.Log($"Videos found: {videos.Length} in {folderPath}");
         }
 

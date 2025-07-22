@@ -9,7 +9,6 @@ namespace SmartTV
 
         private bool isOn = true;
         private Material screenMaterial;
-        private RawImage powerImage;
         private VideoToggleControl videoToggleControl;
 
         void Start()
@@ -18,7 +17,6 @@ namespace SmartTV
             buttonComponent.onClick.RemoveAllListeners();
             buttonComponent.onClick.AddListener(this.Toggle);
             screenMaterial = transform.parent.parent.GetComponent<Renderer>().material;
-            powerImage = transform.Find("RawImage").GetComponent<RawImage>();
             videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
             Toggle(); //turn off the tv on start
         }
@@ -26,7 +24,6 @@ namespace SmartTV
         private void Toggle()
         {
             isOn = !isOn;
-
             screenMaterial.color = isOn ? Color.white : Color.black;
 
             foreach (Transform child in transform.parent)

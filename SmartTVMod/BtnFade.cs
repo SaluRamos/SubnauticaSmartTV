@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -98,6 +93,10 @@ namespace SmartTV
 
         public void InstantUpdateVisibility(bool on)
         {
+            if (fadeRoutine != null)
+            {
+                StopCoroutine(fadeRoutine);
+            }
             if (on)
             {
                 targetGroup.alpha = 1f;

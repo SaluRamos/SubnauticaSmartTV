@@ -1,6 +1,7 @@
 ﻿using SmartTV;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,27 +16,38 @@ namespace SmartTV
     {
 
         private VideoToggleControl videoToggleControl;
-        private UnityAction action;
 
         void Start()
         {
             videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
+            if (videoToggleControl == null)
+            {
+                UnityEngine.Debug.LogError("VideoToggleControl is null at ChangeVideoBtn");
+            }
             Button buttonComponent = GetComponent<Button>();
+            buttonComponent.onClick.AddListener(ChangeVideo);
+        }
+
+        private long lastClick;
+        private double minTimeBetweenClicks = 0.3; // 300 milliseconds
+
+        private void ChangeVideo()
+        {
+            long actualTimestamp = Stopwatch.GetTimestamp();
+            long elapsedTicks = actualTimestamp - lastClick;
+            double elapsedSeconds = (double)elapsedTicks / Stopwatch.Frequency;
+            if (elapsedSeconds < minTimeBetweenClicks)
+            {
+                return; // Ignore clicks that are too close together
+            }
+            lastClick = actualTimestamp;
             if (gameObject.name.Contains("Next"))
-            { 
-                action = videoToggleControl.NextVideo;
+            {
+                videoToggleControl.NextVideo();
             }
             else
             {
-                action = videoToggleControl.PreviousVideo;
-            }
-            buttonComponent.onClick.AddListener(action);
-            if (FindObjectOfType<EventSystem>() == null)
-            {
-                Debug.LogWarning("No EventSystem found, creating one.");
-                GameObject es = new GameObject("EventSystem");
-                es.AddComponent<EventSystem>();
-                es.AddComponent<StandaloneInputModule>();
+                videoToggleControl.PreviousVideo();
             }
         }
 

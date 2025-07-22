@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,7 +11,6 @@ namespace SmartTV
     public class VideoScrubber : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
 
-        private VideoThumbScrapper thumbScrapper;
         private VideoPlayer videoPlayer;
         private VideoToggleControl videoToggleControl;
         private Slider slider;
@@ -25,8 +25,8 @@ namespace SmartTV
             timeText = transform.Find("ScrubTime").GetComponent<Text>();
             videoToggleControl = transform.parent.Find("Button").GetComponent<VideoToggleControl>();
             if (videoToggleControl == null)
-            { 
-                Debug.LogError("[VideoScrubber] Could not locate VideoToggleControl component.");
+            {
+                UnityEngine.Debug.LogError("[VideoScrubber] Could not locate VideoToggleControl component.");
             }
 
             Transform thumb = transform.Find("Handle Slide Area/Handle/RawImage");
@@ -37,28 +37,28 @@ namespace SmartTV
             }
             else
             {
-                Debug.LogError("[Thumbnail] Could not locate ThumbnailPreview.");
+                UnityEngine.Debug.LogError("[Thumbnail] Could not locate ThumbnailPreview.");
             }
-            thumbScrapper = new VideoThumbScrapper(videoToggleControl);
         }
+
+        private double timeToUpdateSlider = 1f;
+        private long lastSliderUpdate = 0;
 
         void LateUpdate()
         {
-            UpdateTimeDisplay();
-
-            if (!isDragging)
+            if (videoToggleControl.IsPlaying())
             {
-                slider.value = (float)(videoPlayer.time / videoPlayer.length);
-            }
-
-            if (isDragging)
-            {
-                double slideTime = slider.value * videoPlayer.length;
-                thumbScrapper.GetFrame(slideTime, hoverThumbnail);
-            }
-            else
-            { 
-                hoverThumbnail.texture = videoPlayer.texture;
+                UpdateTimeDisplay();
+                long actualTimestamp = Stopwatch.GetTimestamp();
+                long elapsedTicks = actualTimestamp - lastSliderUpdate;
+                double elapsedSeconds = (double)elapsedTicks / Stopwatch.Frequency;
+                if (!isDragging && elapsedSeconds > timeToUpdateSlider)
+                {
+                    lastSliderUpdate = Stopwatch.GetTimestamp();
+                    float normalizedTime = (float)(videoPlayer.time / videoPlayer.length);
+                    slider.value = normalizedTime;
+                }
+                hoverThumbnail.texture = VideoThumbScrapper.GetFrame(videoToggleControl.GetCurrentURL(), slider.value);
             }
         }
 
@@ -81,11 +81,7 @@ namespace SmartTV
         {
             isDragging = false;
             videoPlayer.time = slider.value * videoPlayer.length;
-        }
-
-        void OnDestroy()
-        {
-            thumbScrapper.Dispose();
+            hoverThumbnail.texture = VideoThumbScrapper.GetFrame(videoToggleControl.GetCurrentURL(), slider.value);
         }
 
     }

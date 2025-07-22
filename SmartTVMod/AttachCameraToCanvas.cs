@@ -13,24 +13,12 @@ namespace SmartTV
 
         public Camera cameraRef;
 
-        void Start()
-        {
-            if (cameraRef == null)
-            {
-                Camera[] cameras = FindObjectsOfType<Camera>();
-                if (cameras.Length > 0)
-                { 
-                    cameraRef = cameras[0];
-                }
-            }
-        }
-
         void LateUpdate()
         {
-            if (gameObject.GetComponent<Canvas>().worldCamera == null && cameraRef != null)
+            if (gameObject.GetComponent<Canvas>().worldCamera == null)
             {
                 cameraRef = FindObjectOfType<WaterSurfaceOnCamera>()?.gameObject.GetComponent<Camera>();
-                if (cameraRef == null)
+                if (cameraRef == null) //for menu
                 {
                     return;
                 }
