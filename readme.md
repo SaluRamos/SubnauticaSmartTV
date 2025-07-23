@@ -27,7 +27,9 @@
 
 ## Preview
 
-[![Watch the video](https://img.youtube.com/vi/wYHQCRYm5zE/maxresdefault.jpg)](https://www.youtube.com/watch?v=wYHQCRYm5zE)
+![alt text](readme_images/gif.gif)
+
+https://www.youtube.com/watch?v=wYHQCRYm5zE
 
 ## Video Compatibility
 
