@@ -15,7 +15,7 @@
 
 - Download the latest release
 - extract the .zip file inside BepInEx/plugins
-- put your videos inside BepInEx/plugins/SmartTV/Videos (support for mp4)
+- put your videos inside BepInEx/plugins/SmartTV/Videos
 
 ## Working features
 
@@ -25,9 +25,10 @@
 - previous video button
 - volume slider
 
-## Screenshots
+## Preview
+
+[![Watch the video](https://img.youtube.com/vi/wYHQCRYm5zE/maxresdefault.jpg)](https://www.youtube.com/watch?v=wYHQCRYm5zE)
+
+## Video Compatibility
 
 ![alt text](readme_images/image.png)
-![alt text](readme_images/image-1.png)
-![alt text](readme_images/image-2.png)
-![alt text](readme_images/image-3.png)
