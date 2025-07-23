@@ -55,11 +55,19 @@ namespace SmartTV
                 if (!isDragging && elapsedSeconds > timeToUpdateSlider)
                 {
                     lastSliderUpdate = Stopwatch.GetTimestamp();
-                    float normalizedTime = (float)(videoPlayer.time / videoPlayer.length);
+                    float normalizedTime = Clamp01((float)(videoPlayer.time / videoPlayer.length));
                     slider.value = normalizedTime;
                 }
                 hoverThumbnail.texture = VideoThumbScrapper.GetFrame(videoToggleControl.GetCurrentURL(), slider.value);
             }
+        }
+
+        private float Clamp01(float value)
+        {
+            if (float.IsNaN(value)) return 0;
+            if (value < 0) return 0;
+            if (value > 1) return 1;
+            return value;
         }
 
         private void UpdateTimeDisplay()
