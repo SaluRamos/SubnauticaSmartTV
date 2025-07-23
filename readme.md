@@ -11,11 +11,12 @@
 - https://github.com/BepInEx/BepInEx
 - https://github.com/SubnauticaModding/Nautilus
 
-## How to use
+## How to install
 
 - Download the latest release
 - extract the .zip file inside BepInEx/plugins
 - put your videos inside BepInEx/plugins/SmartTV/Videos
+- download dlls from this repository and place inside BepInEx/plugins/SmartTV
 
 ## Working features
 
